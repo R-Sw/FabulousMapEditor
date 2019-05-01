@@ -214,12 +214,42 @@ def resetLayout():
             button["bg"] = bg_base_color
 
 
+def reorderEnemyPath(start_tuple, unordered_enemy_path):
+    # Given a list of tuples, reoders them by neighboring values from a starting tuple
+    # returns the reodered list
+    # used to build the enemy path as a list from the coordinate of the base to the edge of the map
+    
+    #TODO si au test des direction je fail, je dois péter adjacence
+    print("unordered : {}".format(unordered_enemy_path).encode("utf8"))
+    print("starting from : {}\n".format(start_tuple).encode("utf8"))
+    reordered_enemy_path = []
+    enemy_path_set = {tuple(coor_lst) for coor_lst in unordered_enemy_path} # arrives as a list of lists, casted into a set of tuple (note : lists are unashable)
+    
+    current_tuple = start_tuple
+    for i in range(0, len(unordered_enemy_path)): # there are len(unordered_enemy_path) coordiantes to reorder
+        #Generate all 4 possible directions from the current position, then check which is in our coordinate set
+        candidate_tuple_up = (current_tuple[0]+1, current_tuple[1])
+        candidate_tuple_down = (current_tuple[0]-1, current_tuple[1])
+        candidate_tuple_right = (current_tuple[0], current_tuple[1]+1)
+        candidate_tuple_left = (current_tuple[0], current_tuple[1]-1)
+        
+        for candidate_tuple in [candidate_tuple_up, candidate_tuple_down, candidate_tuple_right, candidate_tuple_left]: #TODO la liste est un biais, si on veut autoriser les loops, ac des inter/union taille 1 ?
+            if candidate_tuple in enemy_path_set:
+                reordered_enemy_path.append(list(candidate_tuple))
+                enemy_path_set.remove(candidate_tuple) # not removing allows loops in the path
+                current_tuple = candidate_tuple
+                break # only one neighbor is added at a time
+    print("reordered : {}".format(reordered_enemy_path).encode("utf8"))
+    return reordered_enemy_path
+
+
 def generateMap():
     # Outputs a mapping with 1 entry per unit_type -> [[x_coor, y_coor], [...], ... ]
     # + 1 entry "Layout_dims" with 2-elements list containing the size of the layout 
     out_path = out_entry.get()
     yaml_map = {}
     yaml_map["Layout_dims"] = [layout_dims[0], layout_dims[1]] 
+    
     for coor_tuple, button in grid.iteritems():
         color = button["bg"]
         if color == ep_color:
@@ -234,7 +264,11 @@ def generateMap():
         elif color == es_color:
             yaml_map["Enemy_spawn"] = yaml_map.get("Enemy_spawn", [])
             yaml_map["Enemy_spawn"].append(list(coor_tuple))
-            
+
+    #TODO  : si y'a pas de spawn, il faut péter
+    enemy_path_reordered = reorderEnemyPath(yaml_map["Enemy_spawn"][0], yaml_map["Enemy_path"])
+    yaml_map["Enemy_path"] = enemy_path_reordered
+    
     with open("{}".format(out_path).encode("utf8"), 'w') as out_yml:
         yaml.dump(yaml_map, out_yml, default_flow_style=False)
     
