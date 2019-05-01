@@ -12,6 +12,7 @@ except ImportError :
     print("Error trying to import tkinter. Use 'sudo apt-get install python-tk' on Unix for python 2, or 'sudo apt-get install python3-tk' for python 3".encode("utf8"))
     sys.exit(0)
 
+import os
 from collections import defaultdict
 import yaml
 
@@ -139,7 +140,7 @@ def generateLayout(event=None, loaded_map={}): # event is just here to accomodat
     out_label.grid(row=0, column=0, sticky="W")
     
     out_input = tk.StringVar()
-    out_input.set("map_{}x{}.yml".format(layout_dims[0], layout_dims[1]))
+    out_input.set("output/map_{}x{}.yml".format(layout_dims[0], layout_dims[1]))
     
     out_entry = tk.Entry(out_frame, textvariable=out_input, width=30) #bind the fields to an entry so we can retrieve and manipulate the values
     out_entry.grid(row=0, column=1, sticky="W")
@@ -268,6 +269,10 @@ def generateMap():
     #TODO  : si y'a pas de spawn, il faut péter
     enemy_path_reordered = reorderEnemyPath(yaml_map["Enemy_spawn"][0], yaml_map["Enemy_path"])
     yaml_map["Enemy_path"] = enemy_path_reordered
+    
+    out_dirname = out_path.rsplit("/", 1)[0]
+    if not os.path.exists(out_dirname):
+        os.makedirs(out_dirname)
     
     with open("{}".format(out_path).encode("utf8"), 'w') as out_yml:
         yaml.dump(yaml_map, out_yml, default_flow_style=False)
