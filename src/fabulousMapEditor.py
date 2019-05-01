@@ -117,14 +117,14 @@ def generateLayout(event=None, loaded_map={}): # event is just here to accomodat
     switch_frame = tk.Frame(label_switch_frame, borderwidth=2, relief="flat")
     switch_frame.grid(row=0, column=0)
     
+    b_enemy_spawn = tk.Button(switch_frame, text="Enemy spawn", relief="raised", command=lambda: setAction("es"))
+    b_enemy_spawn.grid(row=0, column=0, sticky="W")
     b_enemy_path = tk.Button(switch_frame, text="Enemy path", relief="raised", command=lambda: setAction("ep"))
-    b_enemy_path.grid(row=0, column=0, sticky="W")
-    b_defense_spawn = tk.Button(switch_frame, text="Defense spawn", relief="raised", command=lambda: setAction("ds"))
-    b_defense_spawn.grid(row=1, column=0, sticky="W")
+    b_enemy_path.grid(row=1, column=0, sticky="W")
     b_player_base = tk.Button(switch_frame, text="Player Base", relief="raised", command=lambda: setAction("pb"))
     b_player_base.grid(row=2, column=0, sticky="W")
-    b_enemy_spawn = tk.Button(switch_frame, text="Enemy spawn", relief="raised", command=lambda: setAction("es"))
-    b_enemy_spawn.grid(row=3, column=0, sticky="W")
+    b_defense_spawn = tk.Button(switch_frame, text="Defense spawn", relief="raised", command=lambda: setAction("ds"))
+    b_defense_spawn.grid(row=3, column=0, sticky="W")    
     
     dumb_label = tk.Label(switch_frame, text="", relief="flat") #useless label, to make a separation between the other buttons and the reset button
     dumb_label.grid(row=4, column=0, sticky="W")
