@@ -6,8 +6,10 @@ import sys
 try:
     if sys.version_info[0] < 3: #switch between python 2 and 3 because package name changed
         import Tkinter as tk
+        import tkMessageBox as tkmb
     else:
         import tkinter as tk
+        import tkmessagebox as tkmb
 except ImportError :
     print("Error trying to import tkinter. Use 'sudo apt-get install python-tk' on Unix for python 2, or 'sudo apt-get install python3-tk' for python 3".encode("utf8"))
     sys.exit(0)
@@ -265,9 +267,19 @@ def generateMap():
         elif color == es_color:
             yaml_map["Enemy_spawn"] = yaml_map.get("Enemy_spawn", [])
             yaml_map["Enemy_spawn"].append(list(coor_tuple))
-
-    #TODO  : si y'a pas de spawn, il faut péter
-    enemy_path_reordered = reorderEnemyPath(yaml_map["Enemy_spawn"][0], yaml_map["Enemy_path"])
+    
+    e_spawn = yaml_map.get("Enemy_spawn", None)
+    e_path = yaml_map.get("Enemy_path", None)
+    if e_spawn is None:
+        tkmb.showinfo("WARNING", "No enemy spawn spot detected. There can't be a map without enemies !")
+        return True
+    elif e_path is None:
+        tkmb.showinfo("WARNING", "No enemy path detected. Enemies are useless if they don't go out of their base !")
+        return True
+    else:
+        enemy_path_reordered = reorderEnemyPath(e_spawn[0], e_path)
+        
+    
     yaml_map["Enemy_path"] = enemy_path_reordered
     
     out_dirname = out_path.rsplit("/", 1)[0]
