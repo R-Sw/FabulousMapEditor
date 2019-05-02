@@ -251,7 +251,8 @@ def generateMap():
     # + 1 entry "Layout_dims" with 2-elements list containing the size of the layout 
     out_path = out_entry.get()
     yaml_map = {}
-    yaml_map["Layout_dims"] = [layout_dims[0], layout_dims[1]] 
+    yaml_map["Layout_dims"] = []
+    yaml_map["Layout_dims"].append(list([layout_dims[0], layout_dims[1]]))
     
     for coor_tuple, button in grid.items():
         color = button["bg"]
@@ -282,13 +283,14 @@ def generateMap():
         
     
     yaml_map["Enemy_path"] = enemy_path_reordered
+    yaml_map["Enemy_path"].append(list(yaml_map["Player_base"][0]))
     
     out_dirname = out_path.rsplit("/", 1)[0]
     if not os.path.exists(out_dirname):
         os.makedirs(out_dirname)
     
     with open("{}".format(out_path).encode("utf8"), 'w') as out_yml:
-        yaml.dump(yaml_map, out_yml, default_flow_style=False)
+        yaml.dump(yaml_map, out_yml, default_flow_style=None)
     
 
 # Initialize the interface
