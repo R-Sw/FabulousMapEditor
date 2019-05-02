@@ -255,19 +255,20 @@ def generateMap():
     
     for coor_tuple, button in grid.items():
         color = button["bg"]
+        inverted_coor_tuple = [coor_tuple[1], (layout_dims[0] - 1) - coor_tuple[0]]
         if color == ep_color:
             yaml_map["Enemy_path"] = yaml_map.get("Enemy_path", [])
-            yaml_map["Enemy_path"].append(list(coor_tuple))
+            yaml_map["Enemy_path"].append(list(inverted_coor_tuple))
         elif color == ds_color:
             yaml_map["Defense_spawn"] = yaml_map.get("Defense_spawn", [])
-            yaml_map["Defense_spawn"].append(list(coor_tuple))
+            yaml_map["Defense_spawn"].append(list(inverted_coor_tuple))
         elif color == pb_color:
             yaml_map["Player_base"] = yaml_map.get("Player_base", [])
-            yaml_map["Player_base"].append(list(coor_tuple))
+            yaml_map["Player_base"].append(list(inverted_coor_tuple))
         elif color == es_color:
             yaml_map["Enemy_spawn"] = yaml_map.get("Enemy_spawn", [])
-            yaml_map["Enemy_spawn"].append(list(coor_tuple))
-    
+            yaml_map["Enemy_spawn"].append(list(inverted_coor_tuple))
+
     e_spawn = yaml_map.get("Enemy_spawn", None)
     e_path = yaml_map.get("Enemy_path", None)
     if e_spawn is None:
