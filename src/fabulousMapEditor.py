@@ -9,7 +9,7 @@ try:
         import tkMessageBox as tkmb
     else:
         import tkinter as tk
-        import tkmessagebox as tkmb
+        from tkinter import messagebox as tkmb
 except ImportError :
     print("Error trying to import tkinter. Use 'sudo apt-get install python-tk' on Unix for python 2, or 'sudo apt-get install python3-tk' for python 3".encode("utf8"))
     sys.exit(0)
@@ -212,7 +212,7 @@ def setAction(action_string):
 
 def resetLayout():
     # Reverts all cells grey
-    for coor_tuple, button in grid.iteritems():
+    for coor_tuple, button in grid.items():
         if button["bg"] != bg_base_color:
             button["bg"] = bg_base_color
 
@@ -253,7 +253,7 @@ def generateMap():
     yaml_map = {}
     yaml_map["Layout_dims"] = [layout_dims[0], layout_dims[1]] 
     
-    for coor_tuple, button in grid.iteritems():
+    for coor_tuple, button in grid.items():
         color = button["bg"]
         if color == ep_color:
             yaml_map["Enemy_path"] = yaml_map.get("Enemy_path", [])
