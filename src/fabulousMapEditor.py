@@ -66,7 +66,7 @@ def buildExistingLayout(loaded_map):
     grid_frame = tk.Frame(label_grid_frame, borderwidth=2, relief="flat")
     grid_frame.grid(row=0, column=0, sticky="W")
     
-    for row in range(3, layout_dims[0]+3):
+    for row in range(layout_dims[0]):
         for column in range(layout_dims[1]):
             b_color = loaded_map.get((row, column), bg_base_color)
             b = tk.Button(grid_frame, relief="flat", background=b_color, activebackground=active_bg_base_color, borderwidth=1, command=lambda r=row, c=column: click((r, c)))
@@ -78,7 +78,7 @@ def buildNewLayout():
     grid_frame = tk.Frame(label_grid_frame, borderwidth=2, relief="flat")
     grid_frame.grid(row=0, column=0, sticky="W")
     
-    for row in range(3, layout_dims[0]+3):
+    for row in range(layout_dims[0]):
         for column in range(layout_dims[1]):
             b = tk.Button(grid_frame, relief="flat", background=bg_base_color, activebackground=active_bg_base_color, borderwidth=1, command=lambda r=row, c=column: click((r, c)))
             b.grid(row=row, column=column) # ajouter sticky=N+S+E+W pr le resize
