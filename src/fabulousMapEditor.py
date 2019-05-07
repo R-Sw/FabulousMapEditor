@@ -30,9 +30,9 @@ ep_color = "orange"
 ds_color = "black"
 es_color = "yellow"
 pb_color = "green"
-pb_position = (-1, -1) # position of the previous player_base, for unicity handling
+pb_position = (-1, -1) # position of the previous playerBase, for unicity handling
 
-b_enemy_path = None
+b_enemy_route = None
 b_defense_spawn = None
 b_player_base = None
 b_enemy_spawn = None
@@ -47,16 +47,16 @@ def loadLayout(event): # event is just here to accomodate key binding
     
     layout_dims = tuple(layout["Layout_dims"])
 
-    for entry_name in ["Enemy_path", "Player_base", "Enemy_spawn", "Defense_spawn"]:
+    for entry_name in ["enemyRoute", "playerBase", "enemySpawn", "defenseSpawn"]:
         coor_lst = layout[entry_name]
         for coor in coor_lst:
-            if entry_name == "Enemy_path":
+            if entry_name == "enemyRoute":
                 loaded_map[tuple(coor)] = ep_color
-            elif entry_name == "Player_base":
+            elif entry_name == "playerBase":
                 loaded_map[tuple(coor)] = pb_color
-            elif entry_name == "Enemy_spawn":
+            elif entry_name == "enemySpawn":
                 loaded_map[tuple(coor)] = es_color
-            elif entry_name == "Defense_spawn":
+            elif entry_name == "defenseSpawn":
                 loaded_map[tuple(coor)] = ds_color
 
     generateLayout(event, loaded_map)
@@ -89,7 +89,7 @@ def generateLayout(event=None, loaded_map={}): # event is just here to accomodat
     global grid
     global layout_dims
     global out_entry
-    global b_enemy_path
+    global b_enemy_route
     global b_defense_spawn
     global b_player_base
     global b_enemy_spawn
@@ -121,8 +121,8 @@ def generateLayout(event=None, loaded_map={}): # event is just here to accomodat
     
     b_enemy_spawn = tk.Button(switch_frame, text="Enemy spawn", relief="raised", command=lambda: setAction("es"))
     b_enemy_spawn.grid(row=0, column=0, sticky="W")
-    b_enemy_path = tk.Button(switch_frame, text="Enemy path", relief="raised", command=lambda: setAction("ep"))
-    b_enemy_path.grid(row=1, column=0, sticky="W")
+    b_enemy_route = tk.Button(switch_frame, text="Enemy route", relief="raised", command=lambda: setAction("ep"))
+    b_enemy_route.grid(row=1, column=0, sticky="W")
     b_player_base = tk.Button(switch_frame, text="Player Base", relief="raised", command=lambda: setAction("pb"))
     b_player_base.grid(row=2, column=0, sticky="W")
     b_defense_spawn = tk.Button(switch_frame, text="Defense spawn", relief="raised", command=lambda: setAction("ds"))
@@ -180,14 +180,14 @@ def setAction(action_string):
     global ds_color
     global pb_color
     global es_color
-    global b_enemy_path
+    global b_enemy_route
     global b_defense_spawn
     global b_player_base
     global b_enemy_spawn
     
     # This switch uses the color (aka game element) memorized to reinitialize its associated button's state
-    if pointer_carried_color == ep_color: # setting enemy path
-        b_enemy_path.config(relief="raised", state="active")
+    if pointer_carried_color == ep_color: # setting enemy route
+        b_enemy_route.config(relief="raised", state="active")
     elif pointer_carried_color == ds_color: # setting defense spawn spot
         b_defense_spawn.config(relief="raised", state="active")
     elif pointer_carried_color == pb_color: # setting player base
@@ -196,9 +196,9 @@ def setAction(action_string):
         b_enemy_spawn.config(relief="raised", state="active")
     
     # This switch presses the button (eg game element) chosen by the user
-    if action_string == "ep": # setting enemy path
+    if action_string == "ep": # setting enemy route
         pointer_carried_color = ep_color
-        b_enemy_path.config(relief="sunken", state="disabled")
+        b_enemy_route.config(relief="sunken", state="disabled")
     elif action_string == "ds": # setting defense spawn spot
         pointer_carried_color = ds_color
         b_defense_spawn.config(relief="sunken", state="disabled")
@@ -217,19 +217,19 @@ def resetLayout():
             button["bg"] = bg_base_color
 
 
-def reorderEnemyPath(start_tuple, unordered_enemy_path):
+def reorderEnemyRoute(start_tuple, unordered_enemy_route):
     # Given a list of tuples, reoders them by neighboring values from a starting tuple
     # returns the reodered list
-    # used to build the enemy path as a list from the coordinate of the base to the edge of the map
+    # used to build the enemy route as a list from the coordinate of the base to the edge of the map
     
     #TODO si au test des direction je fail, je dois péter adjacence
-    print("unordered : {}".format(unordered_enemy_path).encode("utf8"))
+    print("unordered : {}".format(unordered_enemy_route).encode("utf8"))
     print("starting from : {}\n".format(start_tuple).encode("utf8"))
-    reordered_enemy_path = []
-    enemy_path_set = {tuple(coor_lst) for coor_lst in unordered_enemy_path} # arrives as a list of lists, casted into a set of tuple (note : lists are unashable)
+    reordered_enemy_route = []
+    enemy_route_set = {tuple(coor_lst) for coor_lst in unordered_enemy_route} # arrives as a list of lists, casted into a set of tuple (note : lists are unashable)
     
     current_tuple = start_tuple
-    for i in range(0, len(unordered_enemy_path)): # there are len(unordered_enemy_path) coordiantes to reorder
+    for i in range(0, len(unordered_enemy_route)): # there are len(unordered_enemy_route) coordiantes to reorder
         #Generate all 4 possible directions from the current position, then check which is in our coordinate set
         candidate_tuple_up = (current_tuple[0]+1, current_tuple[1])
         candidate_tuple_down = (current_tuple[0]-1, current_tuple[1])
@@ -237,13 +237,13 @@ def reorderEnemyPath(start_tuple, unordered_enemy_path):
         candidate_tuple_left = (current_tuple[0], current_tuple[1]-1)
         
         for candidate_tuple in [candidate_tuple_up, candidate_tuple_down, candidate_tuple_right, candidate_tuple_left]: #TODO la liste est un biais, si on veut autoriser les loops, ac des inter/union taille 1 ?
-            if candidate_tuple in enemy_path_set:
-                reordered_enemy_path.append(list(candidate_tuple))
-                enemy_path_set.remove(candidate_tuple) # not removing allows loops in the path
+            if candidate_tuple in enemy_route_set:
+                reordered_enemy_route.append(list(candidate_tuple))
+                enemy_route_set.remove(candidate_tuple) # not removing allows loops in the route
                 current_tuple = candidate_tuple
                 break # only one neighbor is added at a time
-    print("reordered : {}".format(reordered_enemy_path).encode("utf8"))
-    return reordered_enemy_path
+    print("reordered : {}".format(reordered_enemy_route).encode("utf8"))
+    return reordered_enemy_route
 
 
 def generateMap():
@@ -258,32 +258,32 @@ def generateMap():
         color = button["bg"]
         inverted_coor_tuple = [coor_tuple[1], (layout_dims[0] - 1) - coor_tuple[0]]
         if color == ep_color:
-            yaml_map["Enemy_path"] = yaml_map.get("Enemy_path", [])
-            yaml_map["Enemy_path"].append(list(inverted_coor_tuple))
+            yaml_map["enemyRoute"] = yaml_map.get("enemyRoute", [])
+            yaml_map["enemyRoute"].append(list(inverted_coor_tuple))
         elif color == ds_color:
-            yaml_map["Defense_spawn"] = yaml_map.get("Defense_spawn", [])
-            yaml_map["Defense_spawn"].append(list(inverted_coor_tuple))
+            yaml_map["defenseSpawn"] = yaml_map.get("defenseSpawn", [])
+            yaml_map["defenseSpawn"].append(list(inverted_coor_tuple))
         elif color == pb_color:
-            yaml_map["Player_base"] = yaml_map.get("Player_base", [])
-            yaml_map["Player_base"].append(list(inverted_coor_tuple))
+            yaml_map["playerBase"] = yaml_map.get("playerBase", [])
+            yaml_map["playerBase"].append(list(inverted_coor_tuple))
         elif color == es_color:
-            yaml_map["Enemy_spawn"] = yaml_map.get("Enemy_spawn", [])
-            yaml_map["Enemy_spawn"].append(list(inverted_coor_tuple))
+            yaml_map["enemySpawn"] = yaml_map.get("enemySpawn", [])
+            yaml_map["enemySpawn"].append(list(inverted_coor_tuple))
 
-    e_spawn = yaml_map.get("Enemy_spawn", None)
-    e_path = yaml_map.get("Enemy_path", None)
+    e_spawn = yaml_map.get("enemySpawn", None)
+    e_route = yaml_map.get("enemyRoute", None)
     if e_spawn is None:
         tkmb.showinfo("WARNING", "No enemy spawn spot detected. There can't be a map without enemies !")
         return True
-    elif e_path is None:
-        tkmb.showinfo("WARNING", "No enemy path detected. Enemies are useless if they don't go out of their base !")
+    elif e_route is None:
+        tkmb.showinfo("WARNING", "No enemy route detected. Enemies are useless if they don't go out of their base !")
         return True
     else:
-        enemy_path_reordered = reorderEnemyPath(e_spawn[0], e_path)
+        enemy_route_reordered = reorderEnemyRoute(e_spawn[0], e_route)
         
     
-    yaml_map["Enemy_path"] = enemy_path_reordered
-    yaml_map["Enemy_path"].append(list(yaml_map["Player_base"][0]))
+    yaml_map["enemyRoute"] = enemy_route_reordered
+    yaml_map["enemyRoute"].append(list(yaml_map["playerBase"][0]))
     
     out_dirname = out_path.rsplit("/", 1)[0]
     if not os.path.exists(out_dirname):
@@ -364,7 +364,7 @@ label_grid_frame.grid(row=0, column=0, sticky="W")
 grid_frame = tk.Frame(command_frame, borderwidth=2, relief="flat")
 grid_frame.grid(row=0, column=0, sticky="W")
 '''
-# TODO il faudrait checker que les enemy paths se font selons des cases adjacentes
+# TODO il faudrait checker que les enemy routes se font selons des cases adjacentes
 
 window.mainloop()
 
