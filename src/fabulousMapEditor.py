@@ -9,7 +9,7 @@ try:
         import tkMessageBox as tkmb
     else:
         import tkinter as tk
-        import tkmessagebox as tkmb
+        from tkinter import messagebox as tkmb
 except ImportError :
     print("Error trying to import tkinter. Use 'sudo apt-get install python-tk' on Unix for python 2, or 'sudo apt-get install python3-tk' for python 3".encode("utf8"))
     sys.exit(0)
@@ -66,7 +66,7 @@ def buildExistingLayout(loaded_map):
     grid_frame = tk.Frame(label_grid_frame, borderwidth=2, relief="flat")
     grid_frame.grid(row=0, column=0, sticky="W")
     
-    for row in range(3, layout_dims[0]+3):
+    for row in range(layout_dims[0]):
         for column in range(layout_dims[1]):
             b_color = loaded_map.get((row, column), bg_base_color)
             b = tk.Button(grid_frame, relief="flat", background=b_color, activebackground=active_bg_base_color, borderwidth=1, command=lambda r=row, c=column: click((r, c)))
@@ -78,7 +78,7 @@ def buildNewLayout():
     grid_frame = tk.Frame(label_grid_frame, borderwidth=2, relief="flat")
     grid_frame.grid(row=0, column=0, sticky="W")
     
-    for row in range(3, layout_dims[0]+3):
+    for row in range(layout_dims[0]):
         for column in range(layout_dims[1]):
             b = tk.Button(grid_frame, relief="flat", background=bg_base_color, activebackground=active_bg_base_color, borderwidth=1, command=lambda r=row, c=column: click((r, c)))
             b.grid(row=row, column=column) # ajouter sticky=N+S+E+W pr le resize
@@ -212,7 +212,7 @@ def setAction(action_string):
 
 def resetLayout():
     # Reverts all cells grey
-    for coor_tuple, button in grid.iteritems():
+    for coor_tuple, button in grid.items():
         if button["bg"] != bg_base_color:
             button["bg"] = bg_base_color
 
@@ -251,23 +251,25 @@ def generateMap():
     # + 1 entry "Layout_dims" with 2-elements list containing the size of the layout 
     out_path = out_entry.get()
     yaml_map = {}
-    yaml_map["Layout_dims"] = [layout_dims[0], layout_dims[1]] 
+    yaml_map["Layout_dims"] = []
+    yaml_map["Layout_dims"].append(list([layout_dims[0], layout_dims[1]]))
     
-    for coor_tuple, button in grid.iteritems():
+    for coor_tuple, button in grid.items():
         color = button["bg"]
+        inverted_coor_tuple = [coor_tuple[1], (layout_dims[0] - 1) - coor_tuple[0]]
         if color == ep_color:
             yaml_map["Enemy_path"] = yaml_map.get("Enemy_path", [])
-            yaml_map["Enemy_path"].append(list(coor_tuple))
+            yaml_map["Enemy_path"].append(list(inverted_coor_tuple))
         elif color == ds_color:
             yaml_map["Defense_spawn"] = yaml_map.get("Defense_spawn", [])
-            yaml_map["Defense_spawn"].append(list(coor_tuple))
+            yaml_map["Defense_spawn"].append(list(inverted_coor_tuple))
         elif color == pb_color:
             yaml_map["Player_base"] = yaml_map.get("Player_base", [])
-            yaml_map["Player_base"].append(list(coor_tuple))
+            yaml_map["Player_base"].append(list(inverted_coor_tuple))
         elif color == es_color:
             yaml_map["Enemy_spawn"] = yaml_map.get("Enemy_spawn", [])
-            yaml_map["Enemy_spawn"].append(list(coor_tuple))
-    
+            yaml_map["Enemy_spawn"].append(list(inverted_coor_tuple))
+
     e_spawn = yaml_map.get("Enemy_spawn", None)
     e_path = yaml_map.get("Enemy_path", None)
     if e_spawn is None:
@@ -281,13 +283,14 @@ def generateMap():
         
     
     yaml_map["Enemy_path"] = enemy_path_reordered
+    yaml_map["Enemy_path"].append(list(yaml_map["Player_base"][0]))
     
     out_dirname = out_path.rsplit("/", 1)[0]
     if not os.path.exists(out_dirname):
         os.makedirs(out_dirname)
     
     with open("{}".format(out_path).encode("utf8"), 'w') as out_yml:
-        yaml.dump(yaml_map, out_yml, default_flow_style=False)
+        yaml.dump(yaml_map, out_yml, default_flow_style=None)
     
 
 # Initialize the interface
