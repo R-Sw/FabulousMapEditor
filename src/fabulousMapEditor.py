@@ -30,12 +30,14 @@ ep_color = "orange"
 ds_color = "black"
 es_color = "yellow"
 pb_color = "green"
+resources_mine_color = "blue"
 pb_position = (-1, -1) # position of the previous playerBase, for unicity handling
 
 b_enemy_route = None
 b_defense_spawn = None
 b_player_base = None
 b_enemy_spawn = None
+b_resources_mine = None
 
 
 def loadLayout(event): # event is just here to accomodate key binding
@@ -47,7 +49,7 @@ def loadLayout(event): # event is just here to accomodate key binding
     
     layout_dims = tuple(layout["Layout_dims"])
 
-    for entry_name in ["enemyRoute", "playerBase", "enemySpawn", "defenseSpawn"]:
+    for entry_name in ["enemyRoute", "playerBase", "enemySpawn", "defenseSpawn", "resourcesMine"]:
         coor_lst = layout[entry_name]
         for coor in coor_lst:
             if entry_name == "enemyRoute":
@@ -58,6 +60,8 @@ def loadLayout(event): # event is just here to accomodate key binding
                 loaded_map[tuple(coor)] = es_color
             elif entry_name == "defenseSpawn":
                 loaded_map[tuple(coor)] = ds_color
+            elif entry_name == "resourcesMine":
+                loaded_map[tuple(coor)] = resources_mine_color
 
     generateLayout(event, loaded_map)
         
@@ -93,6 +97,7 @@ def generateLayout(event=None, loaded_map={}): # event is just here to accomodat
     global b_defense_spawn
     global b_player_base
     global b_enemy_spawn
+    global b_resources_mine
     
     layout_dims = (int(row_entry.get()), int(col_entry.get()))
     
@@ -126,12 +131,14 @@ def generateLayout(event=None, loaded_map={}): # event is just here to accomodat
     b_player_base = tk.Button(switch_frame, text="Player Base", relief="raised", command=lambda: setAction("pb"))
     b_player_base.grid(row=2, column=0, sticky="W")
     b_defense_spawn = tk.Button(switch_frame, text="Defense spawn", relief="raised", command=lambda: setAction("ds"))
-    b_defense_spawn.grid(row=3, column=0, sticky="W")    
+    b_defense_spawn.grid(row=3, column=0, sticky="W")
+    b_resources_mine = tk.Button(switch_frame, text="Resources mine", relief="raised", command=lambda: setAction("rm"))
+    b_resources_mine.grid(row=4, column=0, sticky="W")
     
     dumb_label = tk.Label(switch_frame, text="", relief="flat") #useless label, to make a separation between the other buttons and the reset button
-    dumb_label.grid(row=4, column=0, sticky="W")
+    dumb_label.grid(row=5, column=0, sticky="W")
     b_reset_layout = tk.Button(switch_frame, text="Reset layout", relief="raised", command=lambda: resetLayout())
-    b_reset_layout.grid(row=5, column=0, sticky="W")
+    b_reset_layout.grid(row=6, column=0, sticky="W")
     
     # Build the output info
     # Pour le chemin d'output je sais pas trop quoi faire, donc j'ai fait le minimum : output à l'endroit où le script est executé
@@ -184,6 +191,7 @@ def setAction(action_string):
     global b_defense_spawn
     global b_player_base
     global b_enemy_spawn
+    global b_resources_mine
     
     # This switch uses the color (aka game element) memorized to reinitialize its associated button's state
     if pointer_carried_color == ep_color: # setting enemy route
@@ -194,6 +202,8 @@ def setAction(action_string):
         b_player_base.config(relief="raised", state="active")
     elif pointer_carried_color == es_color: # setting enemy spawn
         b_enemy_spawn.config(relief="raised", state="active")
+    elif pointer_carried_color == resources_mine_color:
+        b_resources_mine.config(relief="raised", state="active")
     
     # This switch presses the button (eg game element) chosen by the user
     if action_string == "ep": # setting enemy route
@@ -208,6 +218,9 @@ def setAction(action_string):
     elif action_string == "es": # setting enemy spawn
         pointer_carried_color = es_color
         b_enemy_spawn.config(relief="sunken", state="disabled")
+    elif action_string == "rm":
+        pointer_carried_color = resources_mine_color
+        b_resources_mine.config(relief="sunken", state="disabled")
 
 
 def resetLayout():
@@ -269,6 +282,9 @@ def generateMap():
         elif color == es_color:
             yaml_map["enemySpawn"] = yaml_map.get("enemySpawn", [])
             yaml_map["enemySpawn"].append(list(inverted_coor_tuple))
+        elif color == resources_mine_color:
+            yaml_map["resourcesMine"] = yaml_map.get("resourcesMine", [])
+            yaml_map["resourcesMine"].append(list(inverted_coor_tuple))
 
     e_spawn = yaml_map.get("enemySpawn", None)
     e_route = yaml_map.get("enemyRoute", None)
